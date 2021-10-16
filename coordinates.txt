@@ -1,0 +1,8 @@
+Scan results show the following points of interest:
+•Unknown shuttle: x = 110, y = 228, z = 3
+•Unknown huge object: x = 198, y = 182, z = 4
+•Unknown object: x = 154, y = 91, z = 3
+•Unknown object: x = 149, y = 206, z = unknown
+•Debris of an unknown shuttle: x = 199, y = 204, z = unknown
+•Unknown small object: x = 130, y = 233, z = unknown
+•Unknown huge object: x = 108, y = 80, z = 3

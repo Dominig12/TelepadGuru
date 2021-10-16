@@ -39,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="coordinates.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\user32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -30,10 +30,10 @@ namespace TelepadGuru
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.lab = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.processList = new System.Windows.Forms.ComboBox();
             this.refreshProcessList = new System.Windows.Forms.Button();
@@ -63,6 +63,7 @@ namespace TelepadGuru
             this.ryb = new System.Windows.Forms.TextBox();
             this.rxb = new System.Windows.Forms.TextBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.setPow = new System.Windows.Forms.ComboBox();
             this.setElev = new System.Windows.Forms.TextBox();
             this.offElevation = new System.Windows.Forms.Label();
             this.setBear = new System.Windows.Forms.TextBox();
@@ -72,23 +73,25 @@ namespace TelepadGuru
             this.label10 = new System.Windows.Forms.Label();
             this.offPower = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.setPow = new System.Windows.Forms.TextBox();
-            this.label14 = new System.Windows.Forms.Label();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.button6 = new System.Windows.Forms.Button();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.button7 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label14);
-            this.groupBox1.Controls.Add(this.textBox1);
+            this.groupBox1.Controls.Add(this.label13);
+            this.groupBox1.Controls.Add(this.comboBox1);
             this.groupBox1.Controls.Add(this.checkBox1);
             this.groupBox1.Controls.Add(this.lab);
-            this.groupBox1.Controls.Add(this.label13);
             this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.processList);
             this.groupBox1.Controls.Add(this.refreshProcessList);
@@ -99,20 +102,29 @@ namespace TelepadGuru
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Процесс игры";
             // 
-            // textBox1
+            // label13
             // 
-            this.textBox1.Location = new System.Drawing.Point(146, 22);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(45, 23);
-            this.textBox1.TabIndex = 8;
-            this.textBox1.Text = "300";
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 77);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(170, 15);
+            this.label13.TabIndex = 11;
+            this.label13.Text = "Калибровка (0 45 30), (0 50 30)";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(90, 22);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(81, 23);
+            this.comboBox1.TabIndex = 10;
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(151, 95);
+            this.checkBox1.Location = new System.Drawing.Point(141, 98);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(111, 19);
             this.checkBox1.TabIndex = 7;
@@ -122,41 +134,32 @@ namespace TelepadGuru
             // lab
             // 
             this.lab.AutoSize = true;
-            this.lab.Location = new System.Drawing.Point(151, 77);
+            this.lab.Location = new System.Drawing.Point(6, 99);
             this.lab.Name = "lab";
             this.lab.Size = new System.Drawing.Size(43, 15);
             this.lab.TabIndex = 6;
             this.lab.Text = "Статус";
             // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 69);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(143, 45);
-            this.label13.TabIndex = 4;
-            this.label13.Text = "Для расчета смещения:\r\n0 45 30 для первой пары \r\n0 50 30 для второй пары\r\n";
-            // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 54);
+            this.label12.Location = new System.Drawing.Point(6, 51);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(205, 15);
+            this.label12.Size = new System.Drawing.Size(244, 15);
             this.label12.TabIndex = 3;
-            this.label12.Text = "Процесс игры для внесения данных";
+            this.label12.Text = "Процесс и порт игры для внесения данных";
             // 
             // processList
             // 
             this.processList.FormattingEnabled = true;
             this.processList.Location = new System.Drawing.Point(6, 22);
             this.processList.Name = "processList";
-            this.processList.Size = new System.Drawing.Size(53, 23);
+            this.processList.Size = new System.Drawing.Size(78, 23);
             this.processList.TabIndex = 1;
             // 
             // refreshProcessList
             // 
-            this.refreshProcessList.Location = new System.Drawing.Point(65, 22);
+            this.refreshProcessList.Location = new System.Drawing.Point(177, 21);
             this.refreshProcessList.Name = "refreshProcessList";
             this.refreshProcessList.Size = new System.Drawing.Size(75, 23);
             this.refreshProcessList.TabIndex = 0;
@@ -267,16 +270,16 @@ namespace TelepadGuru
             this.groupBox4.Controls.Add(this.dxBox);
             this.groupBox4.Location = new System.Drawing.Point(12, 279);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(470, 92);
+            this.groupBox4.Size = new System.Drawing.Size(268, 92);
             this.groupBox4.TabIndex = 4;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Для расчета смещения";
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(280, 51);
+            this.button5.Location = new System.Drawing.Point(152, 51);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(176, 23);
+            this.button5.Size = new System.Drawing.Size(81, 23);
             this.button5.TabIndex = 9;
             this.button5.Text = "Рассчитать";
             this.button5.UseVisualStyleBackColor = true;
@@ -284,9 +287,9 @@ namespace TelepadGuru
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(280, 21);
+            this.button4.Location = new System.Drawing.Point(152, 22);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(176, 23);
+            this.button4.Size = new System.Drawing.Size(81, 23);
             this.button4.TabIndex = 8;
             this.button4.Text = "Рассчитать";
             this.button4.UseVisualStyleBackColor = true;
@@ -295,7 +298,7 @@ namespace TelepadGuru
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(132, 54);
+            this.label5.Location = new System.Drawing.Point(76, 54);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(20, 15);
             this.label5.TabIndex = 7;
@@ -312,9 +315,9 @@ namespace TelepadGuru
             // 
             // d2yBox
             // 
-            this.d2yBox.Location = new System.Drawing.Point(152, 51);
+            this.d2yBox.Location = new System.Drawing.Point(96, 51);
             this.d2yBox.Name = "d2yBox";
-            this.d2yBox.Size = new System.Drawing.Size(100, 23);
+            this.d2yBox.Size = new System.Drawing.Size(44, 23);
             this.d2yBox.TabIndex = 5;
             this.d2yBox.Text = "0";
             // 
@@ -322,14 +325,14 @@ namespace TelepadGuru
             // 
             this.d2xBox.Location = new System.Drawing.Point(26, 51);
             this.d2xBox.Name = "d2xBox";
-            this.d2xBox.Size = new System.Drawing.Size(100, 23);
+            this.d2xBox.Size = new System.Drawing.Size(44, 23);
             this.d2xBox.TabIndex = 4;
             this.d2xBox.Text = "0";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(132, 25);
+            this.label3.Location = new System.Drawing.Point(76, 25);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(20, 15);
             this.label3.TabIndex = 3;
@@ -346,9 +349,9 @@ namespace TelepadGuru
             // 
             // dyBox
             // 
-            this.dyBox.Location = new System.Drawing.Point(152, 22);
+            this.dyBox.Location = new System.Drawing.Point(96, 22);
             this.dyBox.Name = "dyBox";
-            this.dyBox.Size = new System.Drawing.Size(100, 23);
+            this.dyBox.Size = new System.Drawing.Size(44, 23);
             this.dyBox.TabIndex = 1;
             this.dyBox.Text = "0";
             // 
@@ -356,7 +359,7 @@ namespace TelepadGuru
             // 
             this.dxBox.Location = new System.Drawing.Point(26, 22);
             this.dxBox.Name = "dxBox";
-            this.dxBox.Size = new System.Drawing.Size(100, 23);
+            this.dxBox.Size = new System.Drawing.Size(44, 23);
             this.dxBox.TabIndex = 0;
             this.dxBox.Text = "0";
             // 
@@ -409,6 +412,7 @@ namespace TelepadGuru
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.setPow);
             this.groupBox6.Controls.Add(this.setElev);
             this.groupBox6.Controls.Add(this.offElevation);
             this.groupBox6.Controls.Add(this.setBear);
@@ -418,13 +422,20 @@ namespace TelepadGuru
             this.groupBox6.Controls.Add(this.label10);
             this.groupBox6.Controls.Add(this.offPower);
             this.groupBox6.Controls.Add(this.label9);
-            this.groupBox6.Controls.Add(this.setPow);
             this.groupBox6.Location = new System.Drawing.Point(286, 151);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(196, 122);
             this.groupBox6.TabIndex = 5;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Результаты";
+            // 
+            // setPow
+            // 
+            this.setPow.FormattingEnabled = true;
+            this.setPow.Location = new System.Drawing.Point(73, 25);
+            this.setPow.Name = "setPow";
+            this.setPow.Size = new System.Drawing.Size(69, 23);
+            this.setPow.TabIndex = 6;
             // 
             // setElev
             // 
@@ -503,28 +514,52 @@ namespace TelepadGuru
             this.label9.TabIndex = 1;
             this.label9.Text = "Power";
             // 
-            // setPow
+            // groupBox7
             // 
-            this.setPow.Location = new System.Drawing.Point(73, 25);
-            this.setPow.Name = "setPow";
-            this.setPow.Size = new System.Drawing.Size(69, 23);
-            this.setPow.TabIndex = 0;
-            this.setPow.Text = "50";
+            this.groupBox7.Controls.Add(this.button7);
+            this.groupBox7.Controls.Add(this.button6);
+            this.groupBox7.Controls.Add(this.comboBox2);
+            this.groupBox7.Location = new System.Drawing.Point(286, 279);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(196, 92);
+            this.groupBox7.TabIndex = 6;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Координаты";
             // 
-            // label14
+            // button6
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(197, 18);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(58, 30);
-            this.label14.TabIndex = 9;
-            this.label14.Text = "ms\r\nзадержка\r\n";
+            this.button6.Location = new System.Drawing.Point(99, 51);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(86, 23);
+            this.button6.TabIndex = 1;
+            this.button6.Text = "Обновить";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Location = new System.Drawing.Point(6, 21);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(179, 23);
+            this.comboBox2.TabIndex = 0;
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(6, 51);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(86, 23);
+            this.button7.TabIndex = 2;
+            this.button7.Text = "Открыть";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(488, 374);
+            this.ClientSize = new System.Drawing.Size(493, 374);
+            this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.groupBox4);
@@ -545,6 +580,7 @@ namespace TelepadGuru
             this.groupBox5.PerformLayout();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
+            this.groupBox7.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -585,17 +621,20 @@ namespace TelepadGuru
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TextBox setPow;
         private System.Windows.Forms.Label offPower;
         private System.Windows.Forms.Label offBearing;
         private System.Windows.Forms.Label offElevation;
         private System.Windows.Forms.Label lab;
         private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox setPow;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.Button button7;
     }
 }
 

@@ -26,12 +26,50 @@ namespace TelepadGuru
         public Form1()
         {
             InitializeComponent();
+			List<int> powers = new List<int>() {5, 10, 20, 25, 30, 40, 50, 80, 100};
+			setPow.DataSource = powers;;
+			setPow.SelectedIndex = 6;
 			refreshProcess();
+			refreshCoords();
 		}
 
         [DllImport("user32.dll")]
         static extern bool SetForegroundWindow(IntPtr hWnd);
-        private void refreshProcessList_Click(object sender, EventArgs e)
+
+		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+		public static extern IntPtr GetForegroundWindow();
+
+		delegate bool EnumThreadDelegate(IntPtr hWnd, IntPtr lParam);
+
+		[DllImport("user32.dll")]
+		static extern bool EnumThreadWindows(int dwThreadId, EnumThreadDelegate lpfn,
+			IntPtr lParam);
+
+		[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+		static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString,
+			int nMaxCount);
+
+		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)]
+		static extern int GetWindowTextLength(IntPtr hWnd);
+
+		[DllImport("user32.dll", SetLastError = true)]
+		private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+		int SW_NORMAL = 1;
+
+		[DllImport("user32.dll")]
+		static extern bool AllowSetForegroundWindow(int dwProcessId);
+
+		static IEnumerable<IntPtr> EnumerateProcessWindowHandles(int processId)
+		{
+			var handles = new List<IntPtr>();
+
+			foreach (ProcessThread thread in Process.GetProcessById(processId).Threads)
+				EnumThreadWindows(thread.Id,
+					(hWnd, lParam) => { handles.Add(hWnd); return true; }, IntPtr.Zero);
+
+			return handles;
+		}
+		private void refreshProcessList_Click(object sender, EventArgs e)
         {
 			refreshProcess();
 		}
@@ -41,11 +79,24 @@ namespace TelepadGuru
 			List<Process> dreamseekers = new List<Process>(Process.GetProcessesByName("dreamseeker"));
 			processList.DataSource = dreamseekers;
 			processList.DisplayMember = "id";
-			processList.ValueMember = "id";
 			if (dreamseekers.Count == 0)
+			{
 				button3.Enabled = false;
+				return;
+			}
 			else
 				button3.Enabled = true;
+
+			List<Connection> connections = NetworkInformation.GetProcessTcpActivity(dreamseekers[0].Id);
+			List<int> con2 = new List<int>();
+			foreach(Connection connection in connections)
+            {
+				if(!con2.Contains(connection.LocalEndPoint.Port))
+					con2.Add(connection.LocalEndPoint.Port);
+				if(!con2.Contains(connection.RemoteEndPoint.Port))
+					con2.Add(connection.RemoteEndPoint.Port);
+            }
+			comboBox1.DataSource = con2;
 		}
 
         private void Form1_Load(object sender, EventArgs e)
@@ -237,7 +288,7 @@ namespace TelepadGuru
 			double num = Convert.ToDouble(this.rxb.Text) - Convert.ToDouble(this.ix.Text);
 			double num2 = Convert.ToDouble(this.ryb.Text) - Convert.ToDouble(this.iy.Text);
 			double num3 = this.CalcBearing(num, num2);
-			double num4 = Convert.ToDouble(this.setPow.Text);
+			double num4 = Convert.ToDouble(this.setPow.SelectedValue.ToString());
 			double num5 = Math.Round(90.0 - num3, 2);
 			bool flag = false;
 			if (num5 < 0.0)
@@ -283,21 +334,62 @@ namespace TelepadGuru
 			this.lab.Text = "Недостаточная мощность";
 		}
 
-        private void button3_Click(object sender, EventArgs e)
+		private IntPtr FindWindow(string name)
         {
-			Calkulate();
 
-			List<Connection> connections = NetworkInformation.GetProcessTcpActivity(Process.GetProcessesByName("dreamseeker")[0].Id);
+			foreach (IntPtr wind in EnumerateProcessWindowHandles(Process.GetProcessesByName("dreamseeker")[0].Id))
+			{
+				int textLength = GetWindowTextLength(wind);
+				StringBuilder outText = new StringBuilder(textLength + 1);
+				int a = GetWindowText(wind, outText, outText.Capacity);
+				if (outText.ToString() == name)
+					return wind;
+			}
+
+			return IntPtr.Zero;
+		}
+
+		private bool TurnCommand(string command, string data = "", string searchWindow = "")
+        {
+			IntPtr targetWindow = IntPtr.Zero;
+			WebRequest reqGET = WebRequest.Create(command);
+			WebResponse resp = reqGET.GetResponse();
+			try
+            {
+				if (searchWindow == "")
+					return true;
+				while(targetWindow == IntPtr.Zero)
+					targetWindow = FindWindow(searchWindow);
+				while (GetForegroundWindow() != targetWindow && targetWindow != IntPtr.Zero)
+				{
+					SetForegroundWindow(targetWindow);
+					targetWindow = FindWindow(searchWindow);
+				}
+				SendKeys.Send(data);
+				Thread.Sleep(300);
+				return true;
+			}
+			catch(WebException e)
+            {
+				return false;
+            }
+		}
+
+		private string GetAdress()
+        {
+			Process mainProcess = processList.SelectedValue as Process;
+
+			List<Connection> connections = NetworkInformation.GetProcessTcpActivity(mainProcess.Id);
 			connections[0].LocalEndPoint.Port.ToString();
-			string consoleID = "";
 
-			DirectoryInfo dir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/BYOND/cache/tmp" + processList.SelectedValue.ToString());
+			DirectoryInfo dir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/BYOND/cache/tmp" + mainProcess.Id.ToString());
 			List<string> fileList = new List<string>();
 
 			string searchText = "Recalibrate Crystals";
 			string file_name = "";
+			string consoleID = "";
 
-			foreach (var file in (from file in dir.GetFiles("*.htm", SearchOption.AllDirectories) orderby file.LastWriteTime select file).ToArray())
+			foreach (var file in (from file in dir.GetFiles("*.htm", SearchOption.AllDirectories) orderby file.LastAccessTime descending select file).ToArray())
 			{
 				fileList.Add(file.FullName);
 			}
@@ -308,41 +400,97 @@ namespace TelepadGuru
 				if (tmp.Contains(searchText))
 				{
 					int index1 = tmp.IndexOf("?src=[0x");
-					consoleID = tmp.Substring(index1+6, 9);
+					consoleID = tmp.Substring(index1 + 6, 9);
 					file_name = file.Split('\\').Last();
 					break;
 				}
 			}
 			if (consoleID == "")
+				return "";
+
+			string port = comboBox1.SelectedValue.ToString();
+			if (port == "")
+				return "";
+
+			return "http://127.0.0.1:" + port + "/tmp" + mainProcess.Id.ToString() + "/" + file_name + "?src=[" + consoleID + "];";
+		}
+
+		private string searchWindow = "Telepad Control Console";
+		private void OpenWormhole()
+        {
+			Calkulate();
+
+			string adress = GetAdress();
+
+			if (adress == "")
 				return;
 
-			SetForegroundWindow(Process.GetProcessesByName("dreamseeker")[0].MainWindowHandle);
-			string port = "";
-			if (connections[0].RemoteEndPoint.Port.ToString() == "0")
-				port = connections[0].LocalEndPoint.Port.ToString();
-			else
-				port = connections[0].RemoteEndPoint.Port.ToString();
+			TurnCommand(adress + "setrotation=1", setBear.Text + "{ENTER}", searchWindow);
 
-			if (port == "0")
-				return;
+			TurnCommand(adress + "setangle=1", setElev.Text + "{ENTER}", searchWindow);
 
-			string adress = "http://127.0.0.1:" + port + "/tmp" + processList.SelectedValue.ToString() + "/" + file_name + "?src=[" + consoleID + "];";
+			TurnCommand(adress + "setpower=" + (setPow.SelectedIndex + 1));
 
-			WebRequest reqGET = WebRequest.Create(adress + "setrotation=1");
-			WebResponse resp = reqGET.GetResponse();
-			Thread.Sleep(Convert.ToInt32(textBox1.Text));
-			SendKeys.Send(setBear.Text + "{ENTER}");
-
-			reqGET = WebRequest.Create(adress + "setangle=1");
-			resp = reqGET.GetResponse();
-			Thread.Sleep(Convert.ToInt32(textBox1.Text));
-			SendKeys.Send(setElev.Text + "{ENTER}");
-
-            if (checkBox1.Checked)
-            {
-				reqGET = System.Net.WebRequest.Create(adress + "open_teleport=1");
-				resp = reqGET.GetResponse();
+			if (checkBox1.Checked)
+			{
+				TurnCommand(adress + "close_teleport=1");
+				TurnCommand(adress + "open_teleport=1");
 			}
+		}
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+			OpenWormhole();
+		}
+
+		private void refreshCoords()
+        {
+			List<string> coordsList = new List<string>();
+			StreamReader reader = new StreamReader("coordinates.txt");
+			string line = "";
+			while ((line = reader.ReadLine()) != null)
+			{
+				string res = ParseCoordsPaper(line);
+				if(res != "")
+					coordsList.Add(res);
+			}
+			comboBox2.DataSource = coordsList;
+			reader.Dispose();
+			reader.Close();
+        }
+
+		private string ParseCoordsPaper(string line)
+        {
+			Regex regex = new Regex(@"\D+", RegexOptions.Compiled);
+			string result = regex.Replace(line, " ");
+			regex = new Regex(@"^\s", RegexOptions.Compiled);
+			result = regex.Replace(result, "");
+			regex = new Regex(@"\s$", RegexOptions.Compiled);
+			result = regex.Replace(result, "");
+			if (result.Split(" ").Length < 3 && result.Split(" ").Length > 1)
+				result += " unknown";
+			return result;
+		}
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+			refreshCoords();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+			string adress = GetAdress();
+			if (adress == "")
+				return;
+			string value = comboBox2.SelectedValue as string;
+			List<string> coords = value.Split(' ').ToList();
+			if (coords.Count < 3)
+				return;
+			rxb.Text = coords[0];
+			ryb.Text = coords[1];
+			if (coords[2] != "unknown")
+				TurnCommand(adress + "setz=1", coords[2] + "{ENTER}", searchWindow);
+			OpenWormhole();
 		}
     }
 }
