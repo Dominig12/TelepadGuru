@@ -52,13 +52,6 @@ namespace TelepadGuru
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)]
 		static extern int GetWindowTextLength(IntPtr hWnd);
 
-		[DllImport("user32.dll", SetLastError = true)]
-		private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-		int SW_NORMAL = 1;
-
-		[DllImport("user32.dll")]
-		static extern bool AllowSetForegroundWindow(int dwProcessId);
-
 		static IEnumerable<IntPtr> EnumerateProcessWindowHandles(int processId)
 		{
 			var handles = new List<IntPtr>();
@@ -369,7 +362,7 @@ namespace TelepadGuru
 				Thread.Sleep(300);
 				return true;
 			}
-			catch(WebException e)
+			catch
             {
 				return false;
             }
