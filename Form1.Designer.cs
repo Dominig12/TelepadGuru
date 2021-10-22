@@ -74,9 +74,9 @@ namespace TelepadGuru
             this.offPower = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.button7 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -526,6 +526,16 @@ namespace TelepadGuru
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Координаты";
             // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(6, 51);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(86, 23);
+            this.button7.TabIndex = 2;
+            this.button7.Text = "Открыть";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
             // button6
             // 
             this.button6.Location = new System.Drawing.Point(99, 51);
@@ -544,21 +554,11 @@ namespace TelepadGuru
             this.comboBox2.Size = new System.Drawing.Size(179, 23);
             this.comboBox2.TabIndex = 0;
             // 
-            // button7
-            // 
-            this.button7.Location = new System.Drawing.Point(6, 51);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(86, 23);
-            this.button7.TabIndex = 2;
-            this.button7.Text = "Открыть";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(493, 374);
+            this.ClientSize = new System.Drawing.Size(494, 374);
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);

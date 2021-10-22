@@ -31,6 +31,9 @@ namespace TelepadGuru
 			setPow.SelectedIndex = 6;
 			refreshProcess();
 			refreshCoords();
+			using var watching = new FileSystemWatcher();
+			watching.Changed += OpenWormholeFromMap;
+			watching.Filter = "openwormhole.txt";
 		}
 
         [DllImport("user32.dll")]
@@ -80,15 +83,18 @@ namespace TelepadGuru
 			else
 				button3.Enabled = true;
 
-			List<Connection> connections = NetworkInformation.GetProcessTcpActivity(dreamseekers[0].Id);
 			List<int> con2 = new List<int>();
-			foreach(Connection connection in connections)
-            {
-				if(!con2.Contains(connection.LocalEndPoint.Port))
-					con2.Add(connection.LocalEndPoint.Port);
-				if(!con2.Contains(connection.RemoteEndPoint.Port))
-					con2.Add(connection.RemoteEndPoint.Port);
-            }
+			foreach (Process dreamseeker in dreamseekers)
+			{
+				List<Connection> connections = NetworkInformation.GetProcessTcpActivity(dreamseeker.Id);
+				foreach (Connection connection in connections)
+				{
+					if (!con2.Contains(connection.LocalEndPoint.Port))
+						con2.Add(connection.LocalEndPoint.Port);
+					if (!con2.Contains(connection.RemoteEndPoint.Port))
+						con2.Add(connection.RemoteEndPoint.Port);
+				}
+			}
 			comboBox1.DataSource = con2;
 		}
 
@@ -430,6 +436,19 @@ namespace TelepadGuru
 				TurnCommand(adress + "open_teleport=1");
 			}
 		}
+		private void OpenWormholeFromMap(object sender, FileSystemEventArgs e)
+        {
+			StreamReader reader = new StreamReader("openwormhole.txt");
+			string line = "";
+			if ((line = reader.ReadLine()) == null)
+				return;
+			string[] coords = line.Split(' ');
+			rxb.Text = coords[0];
+			ryb.Text = coords[1];
+			StreamWriter writer = new StreamWriter("openwormhole.txt");
+			writer.Flush();
+			OpenWormhole();
+        }
 
         private void button3_Click(object sender, EventArgs e)
         {
