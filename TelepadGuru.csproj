@@ -13,7 +13,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="open_wormhole.txt" />
     <None Remove="user32.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="open_wormhole.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

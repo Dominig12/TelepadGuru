@@ -31,9 +31,6 @@ namespace TelepadGuru
 			setPow.SelectedIndex = 6;
 			refreshProcess();
 			refreshCoords();
-			using var watching = new FileSystemWatcher();
-			watching.Changed += OpenWormholeFromMap;
-			watching.Filter = "openwormhole.txt";
 		}
 
         [DllImport("user32.dll")]
@@ -348,31 +345,47 @@ namespace TelepadGuru
 			return IntPtr.Zero;
 		}
 
+        // -2 54
+        // -2 64
+        // 100 100 2
+        private IntPtr GetLastWindow()
+		{
+			return EnumerateProcessWindowHandles(Process.GetProcessesByName("dreamseeker")[0].Id).First<IntPtr>();
+
+        }
+
+		private IEnumerable<IntPtr> GetAllWindows()
+		{
+            return EnumerateProcessWindowHandles(Process.GetProcessesByName("dreamseeker")[0].Id);
+        }
+
 		private bool TurnCommand(string command, string data = "", string searchWindow = "")
         {
-			IntPtr targetWindow = IntPtr.Zero;
+			IEnumerable<IntPtr> before_windows = GetAllWindows();
+            IntPtr targetWindow = IntPtr.Zero;
 			WebRequest reqGET = WebRequest.Create(command);
 			WebResponse resp = reqGET.GetResponse();
-			try
-            {
-				if (searchWindow == "")
-					return true;
-				while(targetWindow == IntPtr.Zero)
-					targetWindow = FindWindow(searchWindow);
-				while (GetForegroundWindow() != targetWindow && targetWindow != IntPtr.Zero)
-				{
-					SetForegroundWindow(targetWindow);
-					targetWindow = FindWindow(searchWindow);
-				}
+			Thread.Sleep(150);
+            IEnumerable<IntPtr> after_windows = GetAllWindows();
+			foreach(IntPtr window in after_windows)
+			{
+				if (before_windows.Contains(window))
+					continue;
+				targetWindow = window;
+			}
+            try
+			{
+				//targetWindow = GetLastWindow();
+				SetForegroundWindow(targetWindow);
 				SendKeys.Send(data);
-				Thread.Sleep(300);
-				return true;
+                Thread.Sleep(100);
+                return true;
 			}
 			catch
-            {
-				return false;
-            }
-		}
+			{
+			}
+            return false;
+        }
 
 		private string GetAdress()
         {
@@ -436,18 +449,38 @@ namespace TelepadGuru
 				TurnCommand(adress + "open_teleport=1");
 			}
 		}
-		private void OpenWormholeFromMap(object sender, FileSystemEventArgs e)
+
+		private void OpenWormholeFromMap(object sender, EventArgs e)
         {
-			StreamReader reader = new StreamReader("openwormhole.txt");
+			StreamReader reader;
+
+            try
+			{
+				reader = new StreamReader("open_wormhole.txt");
+			} catch
+			{
+				return;
+			}
 			string line = "";
 			if ((line = reader.ReadLine()) == null)
+			{
+				reader.Close();
 				return;
-			string[] coords = line.Split(' ');
+			} else
+			{
+                reader.Close();
+            }
+
+            StreamWriter writer = new StreamWriter("open_wormhole.txt");
+            writer.Flush();
+            writer.Close();
+
+            string[] coords = line.Split(' ');
 			rxb.Text = coords[0];
 			ryb.Text = coords[1];
-			StreamWriter writer = new StreamWriter("openwormhole.txt");
-			writer.Flush();
-			OpenWormhole();
+
+            TurnCommand(GetAdress() + "setz=1", coords[2] + "{ENTER}");
+            OpenWormhole();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -504,5 +537,5 @@ namespace TelepadGuru
 				TurnCommand(adress + "setz=1", coords[2] + "{ENTER}", searchWindow);
 			OpenWormhole();
 		}
-    }
+	}
 }
