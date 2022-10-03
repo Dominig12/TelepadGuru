@@ -29,6 +29,7 @@ namespace TelepadGuru
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label13 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -77,6 +78,7 @@ namespace TelepadGuru
             this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -145,7 +147,7 @@ namespace TelepadGuru
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(6, 51);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(244, 15);
+            this.label12.Size = new System.Drawing.Size(245, 15);
             this.label12.TabIndex = 3;
             this.label12.Text = "Процесс и порт игры для внесения данных";
             // 
@@ -554,6 +556,11 @@ namespace TelepadGuru
             this.comboBox2.Size = new System.Drawing.Size(179, 23);
             this.comboBox2.TabIndex = 0;
             // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Tick += new System.EventHandler(this.OpenWormholeFromMap);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -635,6 +642,7 @@ namespace TelepadGuru
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
