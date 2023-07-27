@@ -76,12 +76,23 @@ namespace TelepadGuru
 				List<Connection> connections = NetworkInformation.GetProcessTcpActivity(dreamseeker.Id);
 				foreach (Connection connection in connections)
 				{
-					if (!con2.Contains(connection.LocalEndPoint.Port))
-						con2.Add(connection.LocalEndPoint.Port);
-					if (!con2.Contains(connection.RemoteEndPoint.Port))
-						con2.Add(connection.RemoteEndPoint.Port);
+					try
+					{
+						string command = "http://127.0.0.1:" + connection.LocalEndPoint.Port;
+						HttpClient reqGet = new HttpClient(new HttpClientHandler());
+						reqGet.Timeout = new TimeSpan(0, 0, 0, 0, Config.TimeOutPingPort);
+						HttpResponseMessage request = reqGet.Send(new HttpRequestMessage(HttpMethod.Get, command));
+						
+						if (!con2.Contains(connection.LocalEndPoint.Port))
+							con2.Add(connection.LocalEndPoint.Port);
+					}
+					catch (Exception)
+					{
+						//ifonre
+					}
 				}
 			}
+			
 			comboBox1.DataSource = con2;
 		}
 
@@ -591,11 +602,13 @@ namespace TelepadGuru
 	    public int DelayAfterSendRequestFromServer { get; set; }
 	    public int DelayAfterCompileCommand { get; set; }
 	    public string PathCacheByond { get; set; }
+	    public int TimeOutPingPort { get; set; }
 
 	    public Config()
 	    {
 		    DelayAfterCompileCommand = 100;
 		    DelayAfterSendRequestFromServer = 150;
+		    TimeOutPingPort = 500;
 		    PathCacheByond = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + @"\BYOND\cache\tmp";
 	    }
 
@@ -608,9 +621,12 @@ namespace TelepadGuru
 		    el2.Value = DelayAfterCompileCommand.ToString();
 		    XElement el3 = new XElement("PathCacheByond");
 		    el3.Value = PathCacheByond;
+		    XElement el4 = new XElement("TimeOutPingPort");
+		    el4.Value = TimeOutPingPort.ToString();
 		    element.Add(el1);
 		    element.Add(el2);
 		    element.Add(el3);
+		    element.Add(el4);
 		    
 		    element.Save("config.xml");
 	    }
@@ -626,6 +642,9 @@ namespace TelepadGuru
 		    
 		    DelayAfterCompileCommand =
 			    int.Parse(element.Element("DelayAfterCompileCommand")?.Value ?? $"{DelayAfterCompileCommand}");
+		    
+		    TimeOutPingPort =
+			    int.Parse(element.Element("TimeOutPingPort")?.Value ?? $"{TimeOutPingPort}");
 		    
 		    PathCacheByond = element.Element("PathCacheByond")?.Value ?? $"{PathCacheByond}";
 		    
