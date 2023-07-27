@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Net.Http;
 using MTorrent;
-using Accessibility;
 
 namespace TelepadGuru
 {
@@ -27,47 +22,23 @@ namespace TelepadGuru
         {
             InitializeComponent();
 			List<int> powers = new List<int>() {5, 10, 20, 25, 30, 40, 50, 80, 100};
-			setPow.DataSource = powers;;
+			setPow.DataSource = powers;
 			setPow.SelectedIndex = 6;
-			refreshProcess();
-			refreshCoords();
+			RefreshProcess();
+			RefreshCoords();
 		}
-
+        
         [DllImport("user32.dll")]
-        static extern bool SetForegroundWindow(IntPtr hWnd);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-		public static extern IntPtr GetForegroundWindow();
 
-		delegate bool EnumThreadDelegate(IntPtr hWnd, IntPtr lParam);
-
-		[DllImport("user32.dll")]
-		static extern bool EnumThreadWindows(int dwThreadId, EnumThreadDelegate lpfn,
-			IntPtr lParam);
-
-		[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-		static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString,
-			int nMaxCount);
-
-		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl)]
-		static extern int GetWindowTextLength(IntPtr hWnd);
-
-		static IEnumerable<IntPtr> EnumerateProcessWindowHandles(int processId)
-		{
-			var handles = new List<IntPtr>();
-
-			foreach (ProcessThread thread in Process.GetProcessById(processId).Threads)
-				EnumThreadWindows(thread.Id,
-					(hWnd, lParam) => { handles.Add(hWnd); return true; }, IntPtr.Zero);
-
-			return handles;
-		}
-		private void refreshProcessList_Click(object sender, EventArgs e)
+        private void refreshProcessList_Click(object sender, EventArgs e)
         {
-			refreshProcess();
+			RefreshProcess();
 		}
 
-		private void refreshProcess()
+		private void RefreshProcess()
         {
 			List<Process> dreamseekers = new List<Process>(Process.GetProcessesByName("dreamseeker"));
 			processList.DataSource = dreamseekers;
@@ -109,7 +80,7 @@ namespace TelepadGuru
 			double num5 = this.CalcBearing(num, num2);
 			double num6 = this.CalcBearing(num3, num4);
 			double num7 = 30.0;
-			double num8 = 90.0 - this.roundBearing(num5, num6);
+			double num8 = 90.0 - this.RoundBearing(num5, num6);
 			num5 = 90.0 - num5;
 			num6 = 90.0 - num6;
 			bool flag = false;
@@ -187,9 +158,9 @@ namespace TelepadGuru
 						double num15 = num14;
 						if (dictionary2[num13].Contains(num15 + num9))
 						{
-							this.offPower.Text = (num13 - num7).ToString();
-							this.offBearing.Text = (num8).ToString();
-							this.offElevation.Text = (num15 - 45.0).ToString();
+							this.offPower.Text = (num13 - num7).ToString(CultureInfo.InvariantCulture);
+							this.offBearing.Text = (num8).ToString(CultureInfo.InvariantCulture);
+							this.offElevation.Text = (num15 - 45.0).ToString(CultureInfo.InvariantCulture);
 							flag = true;
 						}
 					}
@@ -208,7 +179,7 @@ namespace TelepadGuru
             return 180.0 * Math.Atan2(y, x) / 3.141592653589793;
         }
 
-        public double roundBearing(double x, double y)
+        public double RoundBearing(double x, double y)
         {
             double result;
             if (Math.Floor(x) == Math.Ceiling(y))
@@ -262,16 +233,16 @@ namespace TelepadGuru
         {
             double num = Convert.ToDouble(this.rxb.Text) - Convert.ToDouble(this.ix.Text);
             double num2 = Convert.ToDouble(this.ryb.Text) - Convert.ToDouble(this.iy.Text);
-            this.dxBox.Text = num.ToString();
-            this.dyBox.Text = num2.ToString();
+            this.dxBox.Text = num.ToString(CultureInfo.InvariantCulture);
+            this.dyBox.Text = num2.ToString(CultureInfo.InvariantCulture);
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             double num = Convert.ToDouble(this.rxb.Text) - Convert.ToDouble(this.ix.Text);
             double num2 = Convert.ToDouble(this.ryb.Text) - Convert.ToDouble(this.iy.Text);
-            this.d2xBox.Text = num.ToString();
-            this.d2yBox.Text = num2.ToString();
+            this.d2xBox.Text = num.ToString(CultureInfo.InvariantCulture);
+            this.d2yBox.Text = num2.ToString(CultureInfo.InvariantCulture);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -291,7 +262,7 @@ namespace TelepadGuru
 			{
 				num5 += 360.0;
 			}
-			this.setBear.Text = Math.Round(num5 - Convert.ToDouble(this.offBearing.Text), 2).ToString().Replace(",", ".");
+			this.setBear.Text = Math.Round(num5 - Convert.ToDouble(this.offBearing.Text), 2).ToString(CultureInfo.InvariantCulture).Replace(",", ".");
 			this.lab.Text = "";
 			double num6;
 			double num7;
@@ -323,83 +294,66 @@ namespace TelepadGuru
 					double num11 = num10;
 					num6 += num11;
 				}
-				this.setElev.Text = (Math.Round(num6 / (double)list.Count, 1) - Convert.ToDouble(this.offElevation.Text)).ToString().Replace(",", ".");
+				this.setElev.Text = (Math.Round(num6 / (double)list.Count, 1) - Convert.ToDouble(this.offElevation.Text)).ToString(CultureInfo.InvariantCulture).Replace(",", ".");
 				this.lab.Text = "Вычислено";
 				return;
 			}
 			this.lab.Text = "Недостаточная мощность";
 		}
 
-		private IntPtr FindWindow(string name)
-        {
-
-			foreach (IntPtr wind in EnumerateProcessWindowHandles(Process.GetProcessesByName("dreamseeker")[0].Id))
-			{
-				int textLength = GetWindowTextLength(wind);
-				StringBuilder outText = new StringBuilder(textLength + 1);
-				int a = GetWindowText(wind, outText, outText.Capacity);
-				if (outText.ToString() == name)
-					return wind;
-			}
-
-			return IntPtr.Zero;
-		}
-
-        // -2 54
-        // -2 64
-        // 100 100 2
-        private IntPtr GetLastWindow()
+		private void TurnCommand(string command, string data = "")
 		{
-			return EnumerateProcessWindowHandles(Process.GetProcessesByName("dreamseeker")[0].Id).First<IntPtr>();
-
-        }
-
-		private IEnumerable<IntPtr> GetAllWindows()
-		{
-            return EnumerateProcessWindowHandles(Process.GetProcessesByName("dreamseeker")[0].Id);
-        }
-
-		private bool TurnCommand(string command, string data = "", string searchWindow = "")
-        {
-			IEnumerable<IntPtr> before_windows = GetAllWindows();
-            IntPtr targetWindow = IntPtr.Zero;
-			WebRequest reqGET = WebRequest.Create(command);
-			WebResponse resp = reqGET.GetResponse();
-			Thread.Sleep(150);
-            IEnumerable<IntPtr> after_windows = GetAllWindows();
-			foreach(IntPtr window in after_windows)
+			try
 			{
-				if (before_windows.Contains(window))
-					continue;
-				targetWindow = window;
-			}
-            try
-			{
+				Process process = processList.SelectedValue as Process;
+
+				if (process == null)
+				{
+					return;
+				}
+				
+				WindowUtility windowUtility = new WindowUtility(process);
+				SetForegroundWindow(process.MainWindowHandle);
+
+
+				//WebRequest.Create(command);
+				HttpClient reqGet = new HttpClient(new HttpClientHandler());
+				HttpResponseMessage request = reqGet.Send(new HttpRequestMessage(HttpMethod.Get, command));
+				
+				if (!request.IsSuccessStatusCode)
+				{
+					return;
+				}
+				
+				Thread.Sleep(150);
+
+				IntPtr targetWindow = windowUtility.GetNewestWindowHandle();
 				//targetWindow = GetLastWindow();
 				SetForegroundWindow(targetWindow);
 				SendKeys.Send(data);
                 Thread.Sleep(100);
-                return true;
 			}
 			catch
 			{
+				// ignored
 			}
-            return false;
-        }
+		}
 
-		private string GetAdress()
+		private string GetAddress()
         {
 			Process mainProcess = processList.SelectedValue as Process;
 
-			List<Connection> connections = NetworkInformation.GetProcessTcpActivity(mainProcess.Id);
-			connections[0].LocalEndPoint.Port.ToString();
+			if (mainProcess == null)
+			{
+				return "";
+			}
 
 			DirectoryInfo dir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/BYOND/cache/tmp" + mainProcess.Id.ToString());
 			List<string> fileList = new List<string>();
 
 			string searchText = "Recalibrate Crystals";
-			string file_name = "";
-			string consoleID = "";
+			string fileName = "";
+			string consoleId = "";
 
 			foreach (var file in (from file in dir.GetFiles("*.htm", SearchOption.AllDirectories) orderby file.LastAccessTime descending select file).ToArray())
 			{
@@ -411,42 +365,41 @@ namespace TelepadGuru
 				string tmp = File.ReadAllText(file);
 				if (tmp.Contains(searchText))
 				{
-					int index1 = tmp.IndexOf("?src=[0x");
-					consoleID = tmp.Substring(index1 + 6, 9);
-					file_name = file.Split('\\').Last();
+					int index1 = tmp.IndexOf("?src=[0x", StringComparison.Ordinal);
+					consoleId = tmp.Substring(index1 + 6, 9);
+					fileName = file.Split('\\').Last();
 					break;
 				}
 			}
-			if (consoleID == "")
+			if (consoleId == "")
 				return "";
 
 			string port = comboBox1.SelectedValue.ToString();
-			if (port == "")
+			if (string.IsNullOrWhiteSpace(port))
 				return "";
 
-			return "http://127.0.0.1:" + port + "/tmp" + mainProcess.Id.ToString() + "/" + file_name + "?src=[" + consoleID + "];";
+			return "http://127.0.0.1:" + port + "/tmp" + mainProcess.Id.ToString() + "/" + fileName + "?src=[" + consoleId + "];";
 		}
-
-		private string searchWindow = "Telepad Control Console";
+		
 		private void OpenWormhole()
         {
 			Calkulate();
 
-			string adress = GetAdress();
+			string address = GetAddress();
 
-			if (adress == "")
+			if (address == "")
 				return;
 
-			TurnCommand(adress + "setrotation=1", setBear.Text + "{ENTER}", searchWindow);
+			TurnCommand(address + "setrotation=1", setBear.Text + "{ENTER}");
 
-			TurnCommand(adress + "setangle=1", setElev.Text + "{ENTER}", searchWindow);
+			TurnCommand(address + "setangle=1", setElev.Text + "{ENTER}");
 
-			TurnCommand(adress + "setpower=" + (setPow.SelectedIndex + 1));
+			TurnCommand(address + "setpower=" + (setPow.SelectedIndex + 1));
 
 			if (checkBox1.Checked)
 			{
-				TurnCommand(adress + "close_teleport=1");
-				TurnCommand(adress + "open_teleport=1");
+				TurnCommand(address + "close_teleport=1");
+				TurnCommand(address + "open_teleport=1");
 			}
 		}
 
@@ -461,7 +414,7 @@ namespace TelepadGuru
 			{
 				return;
 			}
-			string line = "";
+			string line;
 			if ((line = reader.ReadLine()) == null)
 			{
 				reader.Close();
@@ -478,8 +431,12 @@ namespace TelepadGuru
             string[] coords = line.Split(' ');
 			rxb.Text = coords[0];
 			ryb.Text = coords[1];
+			
+			string adress = GetAddress();
+			if (adress == "")
+				return;
 
-            TurnCommand(GetAdress() + "setz=1", coords[2] + "{ENTER}");
+            TurnCommand(adress + "setz=1", coords[2] + "{ENTER}");
             OpenWormhole();
         }
 
@@ -488,12 +445,11 @@ namespace TelepadGuru
 			OpenWormhole();
 		}
 
-		private void refreshCoords()
+		private void RefreshCoords()
         {
 			List<string> coordsList = new List<string>();
 			StreamReader reader = new StreamReader("coordinates.txt");
-			string line = "";
-			while ((line = reader.ReadLine()) != null)
+			while (reader.ReadLine() is { } line)
 			{
 				string res = ParseCoordsPaper(line);
 				if(res != "")
@@ -519,23 +475,84 @@ namespace TelepadGuru
 
         private void button6_Click(object sender, EventArgs e)
         {
-			refreshCoords();
+			RefreshCoords();
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-			string adress = GetAdress();
+			string adress = GetAddress();
 			if (adress == "")
 				return;
 			string value = comboBox2.SelectedValue as string;
-			List<string> coords = value.Split(' ').ToList();
+			List<string> coords = value?.Split(' ').ToList() ?? new List<string>();
 			if (coords.Count < 3)
 				return;
 			rxb.Text = coords[0];
 			ryb.Text = coords[1];
 			if (coords[2] != "unknown")
-				TurnCommand(adress + "setz=1", coords[2] + "{ENTER}", searchWindow);
+				TurnCommand(adress + "setz=1", coords[2] + "{ENTER}");
 			OpenWormhole();
 		}
 	}
+    
+    public class WindowUtility
+    {
+	    public IntPtr NewestWindowHandle = IntPtr.Zero;
+	    public DateTime NewestWindowTime = DateTime.MinValue;
+
+	    public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+	    [DllImport("user32.dll")]
+	    public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+	    [DllImport("user32.dll")]
+	    public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
+
+	    [DllImport("user32.dll")]
+	    public static extern int GetWindowTextLength(IntPtr hWnd);
+
+	    [DllImport("user32.dll")]
+	    public static extern bool IsWindowVisible(IntPtr hWnd);
+
+	    public WindowUtility(Process process)
+	    {
+		    EnumWindows(EnumWindowsCallback, process.Handle);
+	    }
+
+	    public IntPtr GetNewestWindowHandle()
+	    {
+		    return NewestWindowHandle;
+	    }
+
+	    private bool EnumWindowsCallback(IntPtr hWnd, IntPtr lParam)
+	    {
+		    if (IsWindowVisible(hWnd))
+		    {
+			    int windowProcessId;
+			    GetWindowThreadProcessId(hWnd, out windowProcessId);
+
+			    if (windowProcessId == (int)lParam)
+			    {
+				    DateTime windowCreationTime = GetWindowCreationTime(hWnd);
+				    if (windowCreationTime > NewestWindowTime)
+				    {
+					    NewestWindowTime = windowCreationTime;
+					    NewestWindowHandle = hWnd;
+				    }
+			    }
+		    }
+		    return true;
+	    }
+
+	    private DateTime GetWindowCreationTime(IntPtr hWnd)
+	    {
+		    int pid;
+		    GetWindowThreadProcessId(hWnd, out pid);
+		    Process process = Process.GetProcessById(pid);
+		    return process.StartTime;
+	    }
+
+	    [DllImport("user32.dll")]
+	    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+    }
 }
