@@ -380,9 +380,17 @@ namespace TelepadGuru
 
 			return "http://127.0.0.1:" + port + "/tmp" + mainProcess.Id.ToString() + "/" + fileName + "?src=[" + consoleId + "];";
 		}
+
+		private int _z = -1;
 		
 		private void OpenWormhole()
-        {
+		{
+			StreamWriter writer = new StreamWriter("coordinates.txt", true);
+			string zString = _z == -1 ? "unknown" : _z.ToString();
+			writer.WriteLine($"{rxb.Text} {ryb.Text} {zString}");
+			writer.Close();
+			_z = -1;
+			
 			Calkulate();
 
 			string address = GetAddress();
@@ -401,6 +409,8 @@ namespace TelepadGuru
 				TurnCommand(address + "close_teleport=1");
 				TurnCommand(address + "open_teleport=1");
 			}
+			
+			RefreshCoords();
 		}
 
 		private void OpenWormholeFromMap(object sender, EventArgs e)
@@ -431,6 +441,7 @@ namespace TelepadGuru
             string[] coords = line.Split(' ');
 			rxb.Text = coords[0];
 			ryb.Text = coords[1];
+			int.TryParse(coords[2], out _z);
 			
 			string adress = GetAddress();
 			if (adress == "")
