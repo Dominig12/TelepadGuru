@@ -10,6 +10,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Net.Http;
+using System.Text.Json;
+using System.Xml.Linq;
 using MTorrent;
 
 namespace TelepadGuru
@@ -18,6 +20,7 @@ namespace TelepadGuru
     public partial class Form1 : Form
     {
 
+	    public Config Config { get; set; }
         public Form1()
         {
             InitializeComponent();
@@ -26,7 +29,22 @@ namespace TelepadGuru
 			setPow.SelectedIndex = 6;
 			RefreshProcess();
 			RefreshCoords();
-		}
+			RefreshConfigXml();
+        }
+
+        public void RefreshConfigXml()
+        {
+	        if (!File.Exists("config.xml"))
+	        {
+		        Config = new Config();
+		        Config.SaveConfig();
+	        }
+	        else
+	        {
+		        Config = new Config();
+		        Config.LoadConfig();
+	        }
+        }
         
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -40,6 +58,7 @@ namespace TelepadGuru
 
 		private void RefreshProcess()
         {
+	        RefreshConfigXml();
 			List<Process> dreamseekers = new List<Process>(Process.GetProcessesByName("dreamseeker"));
 			processList.DataSource = dreamseekers;
 			processList.DisplayMember = "id";
@@ -325,13 +344,13 @@ namespace TelepadGuru
 					return;
 				}
 				
-				Thread.Sleep(150);
+				Thread.Sleep(Config.DelayAfterSendRequestFromServer);
 
 				IntPtr targetWindow = windowUtility.GetNewestWindowHandle();
 				//targetWindow = GetLastWindow();
 				SetForegroundWindow(targetWindow);
 				SendKeys.Send(data);
-                Thread.Sleep(100);
+                Thread.Sleep(Config.DelayAfterCompileCommand);
 			}
 			catch
 			{
@@ -348,7 +367,7 @@ namespace TelepadGuru
 				return "";
 			}
 
-			DirectoryInfo dir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/BYOND/cache/tmp" + mainProcess.Id.ToString());
+			DirectoryInfo dir = new DirectoryInfo(Config.PathCacheByond + mainProcess.Id.ToString());
 			List<string> fileList = new List<string>();
 
 			string searchText = "Recalibrate Crystals";
@@ -374,7 +393,7 @@ namespace TelepadGuru
 			if (consoleId == "")
 				return "";
 
-			string port = comboBox1.SelectedValue.ToString();
+			string port = comboBox1.SelectedValue?.ToString() ?? "";
 			if (string.IsNullOrWhiteSpace(port))
 				return "";
 
@@ -565,5 +584,52 @@ namespace TelepadGuru
 
 	    [DllImport("user32.dll")]
 	    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+    }
+
+    public class Config
+    {
+	    public int DelayAfterSendRequestFromServer { get; set; }
+	    public int DelayAfterCompileCommand { get; set; }
+	    public string PathCacheByond { get; set; }
+
+	    public Config()
+	    {
+		    DelayAfterCompileCommand = 100;
+		    DelayAfterSendRequestFromServer = 150;
+		    PathCacheByond = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + @"\BYOND\cache\tmp";
+	    }
+
+	    public void SaveConfig()
+	    {
+		    XElement element = new XElement("Config");
+		    XElement el1 = new XElement("DelayAfterSendRequestFromServer");
+		    el1.Value = DelayAfterSendRequestFromServer.ToString();
+		    XElement el2 = new XElement("DelayAfterCompileCommand");
+		    el2.Value = DelayAfterCompileCommand.ToString();
+		    XElement el3 = new XElement("PathCacheByond");
+		    el3.Value = PathCacheByond;
+		    element.Add(el1);
+		    element.Add(el2);
+		    element.Add(el3);
+		    
+		    element.Save("config.xml");
+	    }
+
+	    public void LoadConfig()
+	    {
+		    StreamReader reader = new StreamReader("config.xml");
+		    XElement element = XElement.Load(reader);
+		    reader.Close();
+
+		    DelayAfterSendRequestFromServer =
+			    int.Parse(element.Element("DelayAfterSendRequestFromServer")?.Value ?? $"{DelayAfterSendRequestFromServer}");
+		    
+		    DelayAfterCompileCommand =
+			    int.Parse(element.Element("DelayAfterCompileCommand")?.Value ?? $"{DelayAfterCompileCommand}");
+		    
+		    PathCacheByond = element.Element("PathCacheByond")?.Value ?? $"{PathCacheByond}";
+		    
+		    element.Save("config.xml");
+	    }
     }
 }
