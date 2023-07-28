@@ -531,7 +531,11 @@ namespace TelepadGuru
 			rxb.Text = coords[0];
 			ryb.Text = coords[1];
 			if (coords[2] != "unknown")
+			{
+				int.TryParse(coords[2], out _z);
 				TurnCommand(adress + "setz=1", coords[2] + "{ENTER}");
+			}
+
 			OpenWormhole();
 		}
 	}
