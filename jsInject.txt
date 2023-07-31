@@ -1,0 +1,53 @@
+setInterval(function() {
+
+    var xhr = new XMLHttpRequest();
+
+    var pos = findContainerWithNestedValue(document.body, "Position");
+    var savedPos = findContainerWithNestedValue(document.body, "Saved Position");
+    var otherGPS = findContainerWithNestedValue(document.body, "Signals")
+    var json = {};
+
+    if(pos !== null){
+      json.position = pos.querySelector('.Section__content').textContent;
+    }
+
+    if(savedPos !== null){
+      json.savedPosition = savedPos.querySelector('.Section__content').textContent;
+    }
+
+    if(otherGPS !== null){
+
+      var Gpss = otherGPS.querySelector('.Section__content').querySelectorAll('.Table__cell.Table__cell--collapsing');
+
+      var textList = [];
+
+      for (let i = 1; i < Gpss.length; i+=2) {
+        textList.push(Gpss[i].textContent);
+      }
+      // var Gpss = otherGPS.querySelector('.Section__content').querySelectorAll('.Table__cell.Table__cell--collapsing');
+      // // Создать пустой массив для хранения текстовых значений
+      // var textList = [];
+
+      // // Цикл для обхода всех элементов и добавления .textContent в массив
+      // Gpss.forEach((element) => {
+      //   //textList.push(element.textContent);
+      // });
+
+      json.otherGps = textList;
+    }
+
+
+    if(pos !== null){
+      try{
+      xhr.open('POST', 'http://localhost:5000/api/data', false);
+        xhr.setRequestHeader("Connection", "keep-alive")
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.setRequestHeader("Accept", "*/*")
+        xhr.timeout = 1;
+        xhr.send(JSON.stringify(json));
+      }
+      catch (error){
+        // ignore
+      }
+    }
+  }, 1000);
